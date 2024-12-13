@@ -28,7 +28,7 @@ func TestLightsailClient(t *testing.T) {
 //获取实例
 
 func TestLgGetinfo(t *testing.T) {
-	//lgclint := cmd.GetDefaultAwsLgClient()
+	//lgclint := cmd.GetDefaultAwsLgClient()q
 	ctx := context.Background()
 	lgctl := NewLgQuery()
 	list, err := lgctl.GetInstanceList(ctx)
