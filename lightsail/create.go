@@ -84,7 +84,7 @@ func CreateInstancesFromSnapshot(cl *lightsail.Client, num int, snapshotName, in
 	log.Println("All instances have been created.")
 }
 func InstanceName() (name string) {
-	// 获取当前时间作为 格式为 2022-01-28 15:59:33
+	// 获取当前时间作为1 格式为 2022-01-28 15:59:33
 	instanceName := datetime.GetNowDateTime()
 	fmt.Println(instanceName)
 	s1 := strings.Split(instanceName, " ") //提取2024-11-18 15:46:41
