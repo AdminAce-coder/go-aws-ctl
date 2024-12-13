@@ -42,7 +42,7 @@ func DeleteLg(instanceNames []string, region string) {
 	if len(instanceNames) == 1 && instanceNames[0] == "all" {
 		// 获取客户端a
 		lg := NewLgQuery()
-		// 获取区域列表1
+		// 获取区域列表12
 		regionList := lg.GetRegionList(ctx, region)
 
 		// 获取实例
