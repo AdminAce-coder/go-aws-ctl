@@ -167,7 +167,7 @@ func (lg *LgQuery) GetRegionList(ctx context.Context, region string) (regionList
 func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error) {
 	// 处理分页
 	var nextPageToken *string
-	lgc := cmd2.GetDefaultAwsLgClient()
+	lgc := cmd2.GetClient[*lightsail.Client](cmd2.WithRegion(region), cmd2.WithClientType("lightsail"))
 	instanceListOutput, err := lgc.GetInstances(ctx, &lightsail.GetInstancesInput{
 		PageToken: nextPageToken,
 	})
@@ -178,13 +178,18 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 	for _, instance := range instanceListOutput.Instances {
 		// 处理分页
 		instanceNameList = append(instanceNameList, ctltypes.LgAttr{
-			Region:   region,
-			Name:     *instance.Name,
-			Size:     *instance.BundleId,
-			Image:    aws.ToString(instance.BlueprintId),
-			KeyName:  aws.ToString(instance.SshKeyName),
-			UserData: aws.ToString(instance.Username),
-			Tags:     instance.Tags,
+			Region:     region,
+			Name:       *instance.Name,
+			Size:       *instance.BundleId,
+			Image:      aws.ToString(instance.BlueprintId),
+			KeyName:    aws.ToString(instance.SshKeyName),
+			UserData:   aws.ToString(instance.Username),
+			AreaRegion: aws.ToString(instance.Location.AvailabilityZone),
+			State:      aws.ToString(instance.State.Name),
+			PublicIp:   aws.ToString(instance.PublicIpAddress),
+			PrivateIp:  aws.ToString(instance.PrivateIpAddress),
+			Ctime:      *instance.CreatedAt,
+			Tags:       instance.Tags,
 		})
 		if instanceListOutput.NextPageToken == nil {
 			break
@@ -199,6 +204,7 @@ func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctlt
 
 	regionList := lg.GetRegionList(ctx, "")
 	for _, region := range regionList {
+		glog.Info(ctx, "正在查询区域", string(region.Name))
 		instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
 		if err != nil {
 			return nil, err
