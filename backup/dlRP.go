@@ -6,7 +6,7 @@ package backup
 import (
 	"context"
 	"fmt"
-	"goAwsCtrl/cmd"
+	"github.com/golifez/go-aws-ctl/cmd"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/backup"
