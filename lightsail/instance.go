@@ -2,6 +2,7 @@ package lightsail
 
 import (
 	"fmt"
+
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
 
@@ -39,13 +40,18 @@ func init() {
 // 删除实例
 func DeleteLg(instanceNames []string, region string) {
 	if len(instanceNames) == 1 && instanceNames[0] == "all" {
-
+		// 获取客户端
+		lg := NewLgQuery()
 		// 获取区域列表
-		regionList := GetRegionList(ctx, region)
+		regionList := lg.GetRegionList(ctx, region)
 
 		// 获取实例
 		for _, region := range regionList {
-			instanceList := GetInstanceList(ctx, string(region.Name))
+			instanceList, err := lg.GetInstanceList(ctx, string(region.Name))
+			if err != nil {
+				fmt.Println("获取实例列表失败:", err)
+				return
+			}
 			// 删除实例
 			for _, instancename := range instanceList {
 				cl := cmd2.GetClient[*lightsail.Client](
@@ -53,9 +59,9 @@ func DeleteLg(instanceNames []string, region string) {
 					cmd2.WithClientType("lightsail"),
 				)
 				cl.DeleteInstance(ctx, &lightsail.DeleteInstanceInput{
-					InstanceName: &instancename,
+					InstanceName: &instancename.Name,
 				})
-				fmt.Printf("正在删除实例: %s区域: %s\n", instancename, region.Name)
+				fmt.Printf("正在删除实例: %s区域: %s\n", instancename.Name, region.Name)
 			}
 		}
 		fmt.Println("删除所有实例完成")
