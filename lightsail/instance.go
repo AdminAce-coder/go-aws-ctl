@@ -47,7 +47,7 @@ func DeleteLg(instanceNames []string, region string) {
 
 		// 获取实例
 		for _, region := range regionList {
-			instanceList, err := lg.GetInstanceList(ctx, string(region.Name))
+			instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
 			if err != nil {
 				fmt.Println("获取实例列表失败:", err)
 				return
