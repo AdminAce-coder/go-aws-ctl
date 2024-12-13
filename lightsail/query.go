@@ -20,6 +20,7 @@ import (
 )
 
 type LgQuery struct {
+	nextPageToken *string
 }
 
 // queryCmd represents the query command
@@ -163,7 +164,7 @@ func (lg *LgQuery) GetRegionList(ctx context.Context, region string) (regionList
 // 获取实例
 // var instanceNameList []LgAttr
 
-func (lg *LgQuery) GetInstanceList(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error) {
+func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error) {
 	// 处理分页
 	var nextPageToken *string
 	lgc := cmd2.GetDefaultAwsLgClient()
@@ -189,6 +190,20 @@ func (lg *LgQuery) GetInstanceList(ctx context.Context, region string) (instance
 			break
 		}
 		nextPageToken = instanceListOutput.NextPageToken
+	}
+	return instanceNameList, nil
+}
+
+// 获取所有区域实例列表
+func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error) {
+
+	regionList := lg.GetRegionList(ctx, "")
+	for _, region := range regionList {
+		instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
+		if err != nil {
+			return nil, err
+		}
+		instanceNameList = append(instanceNameList, instanceList...)
 	}
 	return instanceNameList, nil
 }

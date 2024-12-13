@@ -14,8 +14,10 @@ type LgQuerysvc interface {
 	GetBundlesInput(ctx context.Context, lgc *lightsail.Client) ([]ctltypes.LgBundle, error)
 	// 获取实例数量
 	GetInstancesInput(ctx context.Context)
-	// 获取实例列表
-	GetInstanceList(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error)
+	// 获取区域实例列表
+	GetInstanceListWithRegion(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error)
+	// 获取所有区域实例列表
+	GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error)
 	// 获取区域列表
 	GetRegionList(ctx context.Context, region string) (regionList []lgtypes.Region)
 }
