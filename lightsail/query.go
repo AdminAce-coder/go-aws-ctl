@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/gogf/gf/v2/os/glog"
 	ctltypes "github.com/golifez/go-aws-ctl/model"
 	"github.com/golifez/go-aws-ctl/service"
@@ -176,6 +177,10 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 		if err != nil {
 			return nil, err
 		}
+		account, err := lg.GetAccount(ctx)
+		if err != nil {
+			return nil, err
+		}
 
 		for _, instance := range instanceListOutput.Instances {
 			instanceNameList = append(instanceNameList, ctltypes.LgAttr{
@@ -187,6 +192,7 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 				CreateTime:   *instance.CreatedAt,
 				InstanceName: *instance.Name,
 				InstanceType: *instance.BundleId,
+				Account:      account,
 			})
 		}
 
@@ -209,4 +215,15 @@ func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctlt
 		instanceNameList = append(instanceNameList, instanceList...)
 	}
 	return instanceNameList, nil
+}
+
+// 获取账户
+func (lg *LgQuery) GetAccount(ctx context.Context) (string, error) {
+	// 使用 STS 客户端替代 Lightsail 客户端
+	stsClient := cmd2.GetDefaultAwsStsClient()
+	result, err := stsClient.GetCallerIdentity(ctx, &sts.GetCallerIdentityInput{})
+	if err != nil {
+		return "", err
+	}
+	return *result.Account, nil
 }

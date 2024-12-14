@@ -182,3 +182,11 @@ func GetAwsConfigFromConfigFile() (aws.Config, error) {
 
 	return cfg, nil
 }
+
+// 直接传入id和key,获取 AWS 配置
+func GetAwsConfigFromIdAndKey(accessKeyId, secretAccessKey string) (aws.Config, error) {
+	creds := aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(accessKeyId, secretAccessKey, ""))
+	return aws.Config{
+		Credentials: creds,
+	}, nil
+}

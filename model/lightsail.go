@@ -16,6 +16,7 @@ type LgAttr struct {
 	CreateTime   time.Time     // 创建时间
 	InstanceName string        // 实例名称
 	InstanceType string        // 实例类型
+	Account      string        // 账户
 }
 
 // 实例捆绑包
