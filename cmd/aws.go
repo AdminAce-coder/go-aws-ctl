@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 
@@ -41,18 +42,9 @@ func GetClient[T any](optFns ...func(*LoadOptions) error) T {
 	}
 
 	// 先从配置文件中加载 AWS 配置
-	cfg, err := config.LoadDefaultConfig(ctx,
-		config.WithSharedCredentialsFiles(
-			[]string{"../config/credentials", "data/credentials"},
-		),
-		config.WithSharedConfigFiles(
-			[]string{"../config/config", "data/config"},
-		),
-		//config.WithCredentialsProvider(aws.AnonymousCredentials{}), // 禁用 IMDS
-	)
+	cfg, err := GetAwsConfigFromConfigFile()
 	if err != nil {
-		log.Fatalf("Failed to load AWS configuration: %v", err)
-		log.Fatalf("尝试从环境变量中获取 AWS 配置")
+		log.Fatalf("Failed to load AWS configuration from config file: %v", err)
 		cfg, err = GetAwsConfigFromEnv()
 		if err != nil {
 			log.Fatalf("Failed to load AWS configuration from environment variables: %v", err)
@@ -165,4 +157,28 @@ func GetAwsConfigFromEnv() (aws.Config, error) {
 	return aws.Config{
 		Credentials: creds,
 	}, nil
+}
+
+// 从.aws/config文件中获取 AWS 配置
+func GetAwsConfigFromConfigFile() (aws.Config, error) {
+	// 获取用户主目录
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return aws.Config{}, err
+	}
+
+	// 构建标准的 AWS 配置文件路径
+	credentialsPath := filepath.Join(homeDir, ".aws", "credentials")
+	configPath := filepath.Join(homeDir, ".aws", "config")
+
+	// 加载 AWS 配置
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithSharedCredentialsFiles([]string{credentialsPath}),
+		config.WithSharedConfigFiles([]string{configPath}),
+	)
+	if err != nil {
+		return aws.Config{}, err
+	}
+
+	return cfg, nil
 }
