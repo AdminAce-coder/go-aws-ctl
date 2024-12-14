@@ -22,6 +22,13 @@ import (
 
 type LgQuery struct {
 	nextPageToken *string
+	lgc           *lightsail.Client
+}
+
+func NewLgQuery() service.LgQuerysvc {
+	return &LgQuery{
+		lgc: cmd2.GetDefaultAwsLgClient(),
+	}
 }
 
 // queryCmd represents the query command
@@ -58,10 +65,6 @@ func init() {
 	cmd.LgCmd.AddCommand(queryCmd)
 	queryCmd.Flags().BoolP("instanceType", "i", false, "查看可启动实例的类型")
 	queryCmd.Flags().BoolP("instanceList", "l", false, "查询区域的实例数量")
-}
-
-func NewLgQuery() service.LgQuerysvc {
-	return &LgQuery{}
 }
 
 // 获取捆绑包
@@ -149,9 +152,8 @@ func (lg *LgQuery) GetInstancesInput(ctx context.Context) {
 
 //获取区域列表
 
-func (lg *LgQuery) GetRegionList(ctx context.Context, region string) (regionList []lgtypes.Region) {
-	lgc := cmd2.GetDefaultAwsLgClient()
-	regionListOutput, err := lgc.GetRegions(ctx, &lightsail.GetRegionsInput{
+func (lg *LgQuery) GetRegionList(ctx context.Context) (regionList []lgtypes.Region) {
+	regionListOutput, err := lg.lgc.GetRegions(ctx, &lightsail.GetRegionsInput{
 		IncludeAvailabilityZones: aws.Bool(false),
 	})
 	if err != nil {
@@ -206,7 +208,7 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 
 // 获取所有区域实例列表
 func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error) {
-	regionList := lg.GetRegionList(ctx, "")
+	regionList := lg.GetRegionList(ctx)
 	for _, region := range regionList {
 		instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
 		if err != nil {
