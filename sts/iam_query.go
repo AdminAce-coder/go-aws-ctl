@@ -87,3 +87,21 @@ func (iq *IamQueryCommand) GetIamInfo(ctx context.Context) (model.IamInfo, error
 
 	return iamInfo, nil
 }
+
+// 通过ACCESS_KEY_ID查询用户名
+func (iq *IamQueryCommand) GetUserNameByAccessKeyId(ctx context.Context, accessKeyId string) (string, error) {
+	// 调用IAM API查询访问密钥的详细信息
+	output, err := iq.IamClient.GetAccessKeyLastUsed(ctx, &iam.GetAccessKeyLastUsedInput{
+		AccessKeyId: &accessKeyId,
+	})
+	if err != nil {
+		return "", fmt.Errorf("获取访问密钥信息失败: %v", err)
+	}
+
+	// 从返回结果中获取用户名
+	if output.UserName == nil {
+		return "", fmt.Errorf("未找到与该访问密钥关联的用户")
+	}
+
+	return *output.UserName, nil
+}

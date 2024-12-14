@@ -17,3 +17,11 @@ func TestNewIamQueryCommand(t *testing.T) {
 	}
 	t.Log(IamInfo)
 }
+
+func TestGetUserNameByAccessKeyId(t *testing.T) {
+	userName, err := staop.IamQuery.GetUserNameByAccessKeyId(ctx, "AKIA5FTZAFBPZP6OLGET")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(userName)
+}
