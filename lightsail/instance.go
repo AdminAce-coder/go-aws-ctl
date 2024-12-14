@@ -5,10 +5,21 @@ import (
 
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
+	"github.com/golifez/go-aws-ctl/service"
 
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	"github.com/spf13/cobra"
 )
+
+type LgInstanceOpCommand struct {
+	lg *lightsail.Client
+}
+
+func NewLgInstanceOpCommand() service.LgOpsvc {
+	return &LgInstanceOpCommand{
+		lg: cmd2.GetDefaultAwsLgClient(),
+	}
+}
 
 // 操作lightsail实例
 // createCmd represents the create command
@@ -20,11 +31,15 @@ var InstanceCmd = &cobra.Command{
 		// 获取区域
 		region, _ := cmd.Flags().GetString("region")
 		//获取客户端
-
+		lg := NewLgInstanceOpCommand()
 		instanceNames, _ := cmd.Flags().GetStringSlice("instanceNames")
 		delete, _ := cmd.Flags().GetBool("delete")
 		if delete {
-			DeleteLg(instanceNames, region)
+			err := lg.DeleteLg(instanceNames, region)
+			if err != nil {
+				fmt.Println("删除实例失败:", err)
+				return
+			}
 		}
 	},
 }
@@ -38,7 +53,7 @@ func init() {
 }
 
 // 删除实例
-func DeleteLg(instanceNames []string, region string) {
+func (l *LgInstanceOpCommand) DeleteLg(instanceNames []string, region string) error {
 	if len(instanceNames) == 1 && instanceNames[0] == "all" {
 		// 获取客户端a
 		lg := NewLgQuery()
@@ -50,7 +65,7 @@ func DeleteLg(instanceNames []string, region string) {
 			instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
 			if err != nil {
 				fmt.Println("获取实例列表失败:", err)
-				return
+				return err
 			}
 			// 删除实例
 			for _, instancename := range instanceList {
@@ -66,4 +81,5 @@ func DeleteLg(instanceNames []string, region string) {
 		}
 		fmt.Println("删除所有实例完成")
 	}
+	return nil
 }

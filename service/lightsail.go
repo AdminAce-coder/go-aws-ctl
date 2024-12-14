@@ -21,3 +21,9 @@ type LgQuerysvc interface {
 	// 获取区域列表
 	GetRegionList(ctx context.Context, region string) (regionList []lgtypes.Region)
 }
+
+// Lightsail 操作接口
+type LgOpsvc interface {
+	// 删除实例
+	DeleteLg(instanceNames []string, region string) error
+}
