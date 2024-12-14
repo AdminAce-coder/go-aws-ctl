@@ -2,10 +2,14 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"log"
+	"os"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/backup"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
@@ -33,7 +37,7 @@ func GetClient[T any](optFns ...func(*LoadOptions) error) T {
 		}
 	}
 
-	// 加载 AWS 配置
+	// 先从配置文件中加载 AWS 配置
 	cfg, err := config.LoadDefaultConfig(ctx,
 		config.WithSharedCredentialsFiles(
 			[]string{"../config/credentials", "data/credentials"},
@@ -45,6 +49,11 @@ func GetClient[T any](optFns ...func(*LoadOptions) error) T {
 	)
 	if err != nil {
 		log.Fatalf("Failed to load AWS configuration: %v", err)
+		log.Fatalf("尝试从环境变量中获取 AWS 配置")
+		cfg, err = GetAwsConfigFromEnv()
+		if err != nil {
+			log.Fatalf("Failed to load AWS configuration from environment variables: %v", err)
+		}
 	}
 
 	// 设置区域（如果有）
@@ -107,4 +116,19 @@ func GetDefaultAwsLgClient() *lightsail.Client {
 		WithClientType("lightsail"),
 	)
 	return lgClient
+}
+
+// 从环境变量中获取 AWS 配置
+func GetAwsConfigFromEnv() (aws.Config, error) {
+	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
+	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+	if accessKeyID == "" || secretAccessKey == "" {
+		return aws.Config{}, errors.New("AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY is not set")
+	}
+	// 使用正确的凭证创建方法
+	creds := aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(accessKeyID, secretAccessKey, ""))
+
+	return aws.Config{
+		Credentials: creds,
+	}, nil
 }
