@@ -123,3 +123,42 @@ func (iq *IamQueryCommand) GetAccountByAccessKeyId(ctx context.Context, accessKe
 
 	return *output.Account, nil
 }
+
+// 策略名和描述
+var policyInfo = make(map[string]string)
+
+// 通过ACCESS_KEY_ID查询该用户的策略
+func (iq *IamQueryCommand) GetPolicyByAccessKeyId(ctx context.Context, accessKeyId string) (map[string]string, error) {
+	// 首先获取用户名
+	username, err := iq.GetUserNameByAccessKeyId(ctx, accessKeyId)
+	if err != nil {
+		return policyInfo, fmt.Errorf("获取用户名失败: %v", err)
+	}
+
+	// 查询用户的策略
+	policies, err := iq.IamClient.ListAttachedUserPolicies(ctx, &iam.ListAttachedUserPoliciesInput{
+		UserName: &username,
+	})
+	if err != nil {
+		return policyInfo, fmt.Errorf("获取用户策略失败: %v", err)
+	}
+	//
+
+	// 遍历每个策略并获取详细信息
+	for _, policy := range policies.AttachedPolicies {
+		policyDetails, err := iq.IamClient.GetPolicy(ctx, &iam.GetPolicyInput{
+			PolicyArn: policy.PolicyArn,
+		})
+		if err != nil {
+			return policyInfo, fmt.Errorf("获取策略详情失败: %v", err)
+		}
+		// 添加策略信息
+		if policyDetails.Policy.Description != nil {
+			policyInfo[*policy.PolicyName] = *policyDetails.Policy.Description
+		} else {
+			policyInfo[*policy.PolicyName] = "策略描述为空"
+		}
+	}
+
+	return policyInfo, nil
+}

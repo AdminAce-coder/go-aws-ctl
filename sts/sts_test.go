@@ -27,9 +27,18 @@ func TestGetUserNameByAccessKeyId(t *testing.T) {
 }
 
 func TestGetAccountByAccessKeyId(t *testing.T) {
-	account, err := staop.IamQuery.GetAccountByAccessKeyId(ctx, "AKIA5FTZAFBPZP6OLGET")
+	account, err := staop.IamQuery.GetAccountByAccessKeyId(ctx, "AKIA5FTZAFBP5LLRAF4C")
 	if err != nil {
 		t.Error(err)
 	}
 	t.Log(account)
+}
+
+// 通过ACCESS_KEY_ID查询该用户的策略
+func TestGetPolicyByAccessKeyId(t *testing.T) {
+	policyInfo, err := staop.IamQuery.GetPolicyByAccessKeyId(ctx, "AKIA5FTZAFBP5LLRAF4C")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(policyInfo)
 }
