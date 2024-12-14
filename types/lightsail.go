@@ -1,6 +1,8 @@
 package lightsail
 
 import (
+	"time"
+
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 )
 
@@ -11,7 +13,7 @@ type LgAttr struct {
 	PublicIp     string        // 公网IP
 	Status       string        // 状态
 	Tags         []lgtypes.Tag // 标签
-	CreateTime   string        // 创建时间
+	CreateTime   time.Time     // 创建时间
 	InstanceName string        // 实例名称
 	InstanceType string        // 实例类型
 }

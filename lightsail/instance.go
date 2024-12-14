@@ -59,9 +59,9 @@ func DeleteLg(instanceNames []string, region string) {
 					cmd2.WithClientType("lightsail"),
 				)
 				cl.DeleteInstance(ctx, &lightsail.DeleteInstanceInput{
-					InstanceName: &instancename.Name,
+					InstanceName: &instancename.InstanceName,
 				})
-				fmt.Printf("正在删除实例: %s区域: %s\n", instancename.Name, region.Name)
+				fmt.Printf("正在删除实例: %s区域: %s\n", instancename.InstanceName, region.Name)
 			}
 		}
 		fmt.Println("删除所有实例完成")

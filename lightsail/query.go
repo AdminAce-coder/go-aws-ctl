@@ -178,13 +178,14 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 	for _, instance := range instanceListOutput.Instances {
 		// 处理分页
 		instanceNameList = append(instanceNameList, ctltypes.LgAttr{
-			Region:   region,
-			Name:     *instance.Name,
-			Size:     *instance.BundleId,
-			Image:    aws.ToString(instance.BlueprintId),
-			KeyName:  aws.ToString(instance.SshKeyName),
-			UserData: aws.ToString(instance.Username),
-			Tags:     instance.Tags,
+			Region:       region,
+			Zone:         aws.ToString(instance.Location.AvailabilityZone),
+			PublicIp:     aws.ToString(instance.PublicIpAddress),
+			Status:       aws.ToString(instance.State.Name),
+			Tags:         instance.Tags,
+			CreateTime:   *instance.CreatedAt,
+			InstanceName: *instance.Name,
+			InstanceType: *instance.BundleId,
 		})
 		if instanceListOutput.NextPageToken == nil {
 			break
