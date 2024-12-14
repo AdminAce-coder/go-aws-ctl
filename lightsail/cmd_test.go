@@ -36,6 +36,6 @@ func TestLgGetinfo(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, i := range list {
-		t.Log("实例名是：", i)
+		t.Log("实例信息是：", i)
 	}
 }

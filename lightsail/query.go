@@ -165,28 +165,31 @@ func (lg *LgQuery) GetRegionList(ctx context.Context, region string) (regionList
 // var instanceNameList []LgAttr
 
 func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string) (instanceNameList []ctltypes.LgAttr, err error) {
-	// 处理分页
+	// 使用指定region的客户端
+	lgc := cmd2.GetClient[*lightsail.Client](cmd2.WithRegion(region), cmd2.WithClientType("lightsail"))
+
 	var nextPageToken *string
-	lgc := cmd2.GetDefaultAwsLgClient()
-	instanceListOutput, err := lgc.GetInstances(ctx, &lightsail.GetInstancesInput{
-		PageToken: nextPageToken,
-	})
-	if err != nil {
-		glog.New().Error(ctx, err)
-		return nil, err
-	}
-	for _, instance := range instanceListOutput.Instances {
-		// 处理分页
-		instanceNameList = append(instanceNameList, ctltypes.LgAttr{
-			Region:       region,
-			Zone:         aws.ToString(instance.Location.AvailabilityZone),
-			PublicIp:     aws.ToString(instance.PublicIpAddress),
-			Status:       aws.ToString(instance.State.Name),
-			Tags:         instance.Tags,
-			CreateTime:   *instance.CreatedAt,
-			InstanceName: *instance.Name,
-			InstanceType: *instance.BundleId,
+	for {
+		instanceListOutput, err := lgc.GetInstances(ctx, &lightsail.GetInstancesInput{
+			PageToken: nextPageToken,
 		})
+		if err != nil {
+			return nil, err
+		}
+
+		for _, instance := range instanceListOutput.Instances {
+			instanceNameList = append(instanceNameList, ctltypes.LgAttr{
+				Region:       region,
+				Zone:         aws.ToString(instance.Location.AvailabilityZone),
+				PublicIp:     aws.ToString(instance.PublicIpAddress),
+				Status:       aws.ToString(instance.State.Name),
+				Tags:         instance.Tags,
+				CreateTime:   *instance.CreatedAt,
+				InstanceName: *instance.Name,
+				InstanceType: *instance.BundleId,
+			})
+		}
+
 		if instanceListOutput.NextPageToken == nil {
 			break
 		}
@@ -197,7 +200,6 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 
 // 获取所有区域实例列表
 func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error) {
-
 	regionList := lg.GetRegionList(ctx, "")
 	for _, region := range regionList {
 		instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
