@@ -1,22 +1,19 @@
 package lightsail
 
 import (
-	"time"
-
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 )
 
 // Lightsail 实例的属性
 type LgAttr struct {
-	Region     string        // 区域
-	Name       string        // 实例名称
-	Size       string        // 实例类型
-	Image      string        // 镜像
-	KeyName    string        // 密钥对名称
-	UserData   string        // 用户数据
-	Status     string        // 状态
-	CreateTime time.Time     // 创建时间
-	Tags       []lgtypes.Tag // 标签
+	Region       string        // 区域
+	Zone         string        // 可用区
+	PublicIp     string        // 公网IP
+	Status       string        // 状态
+	Tags         []lgtypes.Tag // 标签
+	CreateTime   string        // 创建时间
+	InstanceName string        // 实例名称
+	InstanceType string        // 实例类型
 }
 
 // 实例捆绑包
