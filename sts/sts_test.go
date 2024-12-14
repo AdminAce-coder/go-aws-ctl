@@ -25,3 +25,11 @@ func TestGetUserNameByAccessKeyId(t *testing.T) {
 	}
 	t.Log(userName)
 }
+
+func TestGetAccountByAccessKeyId(t *testing.T) {
+	account, err := staop.IamQuery.GetAccountByAccessKeyId(ctx, "AKIA5FTZAFBPZP6OLGET")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(account)
+}

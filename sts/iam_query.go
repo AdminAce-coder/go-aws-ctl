@@ -105,3 +105,21 @@ func (iq *IamQueryCommand) GetUserNameByAccessKeyId(ctx context.Context, accessK
 
 	return *output.UserName, nil
 }
+
+// 通过ACCESS_KEY_ID查询Account
+func (iq *IamQueryCommand) GetAccountByAccessKeyId(ctx context.Context, accessKeyId string) (string, error) {
+	// 使用提供的访问密钥配置新的凭证
+	output, err := iq.StsClint.GetAccessKeyInfo(ctx, &sts.GetAccessKeyInfoInput{
+		AccessKeyId: &accessKeyId,
+	})
+	if err != nil {
+		return "", fmt.Errorf("获取访问密钥信息失败: %v", err)
+	}
+
+	// 从返回结果中获取账号ID
+	if output.Account == nil {
+		return "", fmt.Errorf("未找到与该访问密钥关联的账号")
+	}
+
+	return *output.Account, nil
+}
