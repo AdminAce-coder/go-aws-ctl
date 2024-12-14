@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
-	ctltypes "github.com/golifez/go-aws-ctl/types"
+	ctltypes "github.com/golifez/go-aws-ctl/model"
 )
 
 // Lightsail 查询接口

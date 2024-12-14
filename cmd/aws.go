@@ -6,12 +6,15 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/service/sts"
+
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/backup"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	"github.com/gogf/gf/v2/os/glog"
 )
@@ -70,6 +73,8 @@ func GetClient[T any](optFns ...func(*LoadOptions) error) T {
 			return ec2.NewFromConfig(cfg)
 		},
 		"backup": func(cfg aws.Config) interface{} { return backup.NewFromConfig(cfg) },
+		"sts":    func(cfg aws.Config) interface{} { return sts.NewFromConfig(cfg) },
+		"iam":    func(cfg aws.Config) interface{} { return iam.NewFromConfig(cfg) },
 	}
 
 	// 创建客户端
@@ -116,6 +121,35 @@ func GetDefaultAwsLgClient() *lightsail.Client {
 		WithClientType("lightsail"),
 	)
 	return lgClient
+}
+
+// 获取一个默认区域的 EC2 客户端
+func GetDefaultAwsEc2Client() *ec2.Client {
+	// 明确指定返回类型为 *ec2.Client
+	ec2Client := GetClient[*ec2.Client](
+		WithRegion("us-east-1"),
+		WithClientType("ec2"),
+	)
+	return ec2Client
+}
+
+// 返回一个STS客户端
+func GetDefaultAwsStsClient() *sts.Client {
+	// 明确指定返回类型为 *sts.Client
+	stsClient := GetClient[*sts.Client](
+		WithRegion("us-east-1"),
+		WithClientType("sts"),
+	)
+	return stsClient
+}
+
+// 添加获取 IAM 客户端的函数
+func GetDefaultAwsIamClient() *iam.Client {
+	iamClient := GetClient[*iam.Client](
+		WithRegion("us-east-1"),
+		WithClientType("iam"),
+	)
+	return iamClient
 }
 
 // 从环境变量中获取 AWS 配置

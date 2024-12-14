@@ -1,4 +1,4 @@
-package lightsail
+package model
 
 import (
 	"time"

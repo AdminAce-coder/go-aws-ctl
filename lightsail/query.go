@@ -14,8 +14,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 	"github.com/gogf/gf/v2/os/glog"
+	ctltypes "github.com/golifez/go-aws-ctl/model"
 	"github.com/golifez/go-aws-ctl/service"
-	ctltypes "github.com/golifez/go-aws-ctl/types"
 	"github.com/spf13/cobra"
 )
 
