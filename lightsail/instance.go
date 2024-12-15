@@ -3,6 +3,7 @@ package lightsail
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/duke-git/lancet/v2/datetime"
 	"github.com/duke-git/lancet/v2/random"
@@ -148,27 +149,43 @@ func (l *LgInstanceOpCommand) ChangeInstancePublicIp(instanceName string, region
 	lgcwithRegion := cmd2.GetAwsLgClient(region)
 
 	// 先分离当前的静态IP(如果有的话)
-	_, err := lgcwithRegion.DetachStaticIp(ctx, &lightsail.DetachStaticIpInput{
-		StaticIpName: aws.String(instanceName),
-	})
-	if err != nil {
-		return err
-	}
+	// _, err := lgcwithRegion.DetachStaticIp(ctx, &lightsail.DetachStaticIpInput{
+	// 	StaticIpName: aws.String(instanceName),
+	// })
+	// if err != nil {
+	// 	return err
+	// }
 
 	// 停止实例
-	_, err = lgcwithRegion.StopInstance(ctx, &lightsail.StopInstanceInput{
+	_, err := lgcwithRegion.StopInstance(ctx, &lightsail.StopInstanceInput{
 		InstanceName: aws.String(instanceName),
 	})
 	if err != nil {
 		return err
 	}
 
+	// 获取实例状态
+	for {
+		instance, err := lgcwithRegion.GetInstance(ctx, &lightsail.GetInstanceInput{
+			InstanceName: aws.String(instanceName),
+		})
+		if err != nil {
+			return err
+		}
+		fmt.Println(instance.Instance.State)
+		if *instance.Instance.State.Name == "stopped" {
+			break
+		}
+		time.Sleep(10 * time.Second)
+	}
 	// 启动实例 - 启动时会自动分配新的公网IP
 	_, err = lgcwithRegion.StartInstance(ctx, &lightsail.StartInstanceInput{
 		InstanceName: aws.String(instanceName),
 	})
-
-	return err
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // 修改实例标签，只添加Key

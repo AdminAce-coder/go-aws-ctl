@@ -98,3 +98,13 @@ func TestLgModifyInstanceTag(t *testing.T) {
 	}
 	fmt.Println("修改实例标签成功")
 }
+
+// 切换实例公网IP
+func TestLgChangeInstancePublicIp(t *testing.T) {
+	lgctl := NewLgOp()
+	err := lgctl.LgOpsvc.ChangeInstancePublicIp("Ubuntu-2", "ap-northeast-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("切换实例公网IP成功")
+}
