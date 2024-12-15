@@ -13,6 +13,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
+	"github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 	"github.com/spf13/cobra"
 )
 
@@ -138,6 +139,45 @@ func (l *LgInstanceOpCommand) StartInstance(instanceName string, region string) 
 	// 启动实例
 	_, err := lgcwithRegion.StartInstance(ctx, &lightsail.StartInstanceInput{
 		InstanceName: aws.String(instanceName),
+	})
+	return err
+}
+
+// 切换lightsail实例公网IP
+func (l *LgInstanceOpCommand) ChangeInstancePublicIp(instanceName string, region string) error {
+	lgcwithRegion := cmd2.GetAwsLgClient(region)
+
+	// 先分离当前的静态IP(如果有的话)
+	_, err := lgcwithRegion.DetachStaticIp(ctx, &lightsail.DetachStaticIpInput{
+		StaticIpName: aws.String(instanceName),
+	})
+	if err != nil {
+		return err
+	}
+
+	// 停止实例
+	_, err = lgcwithRegion.StopInstance(ctx, &lightsail.StopInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+	if err != nil {
+		return err
+	}
+
+	// 启动实例 - 启动时会自动分配新的公网IP
+	_, err = lgcwithRegion.StartInstance(ctx, &lightsail.StartInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+
+	return err
+}
+
+// 修改实例标签，只添加Key
+func (l *LgInstanceOpCommand) ModifyInstanceTag(instanceName string, region string, tagKey string) error {
+	lgcwithRegion := cmd2.GetAwsLgClient(region)
+	// 修改实例标签
+	_, err := lgcwithRegion.TagResource(ctx, &lightsail.TagResourceInput{
+		ResourceName: aws.String(instanceName),
+		Tags:         []types.Tag{{Key: aws.String(tagKey)}},
 	})
 	return err
 }

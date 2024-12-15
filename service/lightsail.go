@@ -37,4 +37,6 @@ type LgOpsvc interface {
 	StopInstance(instanceName string, region string) error
 	// 启动实例
 	StartInstance(instanceName string, region string) error
+	// 修改实例标签
+	ModifyInstanceTag(instanceName string, region string, tagKey string) error
 }

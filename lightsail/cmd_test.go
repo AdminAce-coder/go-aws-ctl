@@ -88,3 +88,13 @@ func TestLgCreateInstance(t *testing.T) {
 	}
 	fmt.Println("创建实例成功")
 }
+
+// 修改实例标签
+func TestLgModifyInstanceTag(t *testing.T) {
+	lgctl := NewLgOp()
+	err := lgctl.LgOpsvc.ModifyInstanceTag("Ubuntu-1", "ap-northeast-1", "test-v2")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("修改实例标签成功")
+}
