@@ -43,4 +43,5 @@ type LgCreateInstance struct {
 	AvailabilityZone string // 可用区
 	BundleId         string // 捆绑包ID
 	Num              int    // 创建数量
+	IsAutoName       bool   // 是否自动生成实例名称
 }

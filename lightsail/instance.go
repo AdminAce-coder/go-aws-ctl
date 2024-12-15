@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/duke-git/lancet/v2/datetime"
+	"github.com/duke-git/lancet/v2/random"
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
 	ctltypes "github.com/golifez/go-aws-ctl/model"
@@ -91,8 +93,9 @@ func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateI
 	lgcwithRegion := cmd2.GetAwsLgClient(lgCreateInstance.Region)
 	// 创建实例
 	for i := 0; i < lgCreateInstance.Num; i++ {
+		instanceName := l.AutoInstanceName(lgCreateInstance)
 		_, err := lgcwithRegion.CreateInstancesFromSnapshot(ctx, &lightsail.CreateInstancesFromSnapshotInput{
-			InstanceNames:        []string{lgCreateInstance.InstanceName},
+			InstanceNames:        []string{instanceName},
 			AvailabilityZone:     aws.String(lgCreateInstance.AvailabilityZone),
 			BundleId:             aws.String(lgCreateInstance.BundleId),
 			InstanceSnapshotName: aws.String(lgCreateInstance.SnapshotName),
@@ -102,4 +105,17 @@ func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateI
 		}
 	}
 	return nil
+}
+
+// 自动生成实例名称
+func (l *LgInstanceOpCommand) AutoInstanceName(lgCreateInstance ctltypes.LgCreateInstance) string {
+	// 获取当天的日期
+	currentDate := datetime.GetNowDate()
+	// 生成一个随机字符串
+	randomString := random.RandNumeralOrLetter(6)
+	// 返回实例名称
+	if lgCreateInstance.IsAutoName {
+		return fmt.Sprintf("%s-%s", currentDate, randomString)
+	}
+	return lgCreateInstance.InstanceName
 }
