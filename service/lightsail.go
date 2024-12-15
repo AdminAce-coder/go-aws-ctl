@@ -39,4 +39,6 @@ type LgOpsvc interface {
 	StartInstance(instanceName string, region string) error
 	// 修改实例标签
 	ModifyInstanceTag(instanceName string, region string, tagKey string) error
+	// 切换实例公网IP
+	ChangeInstancePublicIp(instanceName string, region string) error
 }
