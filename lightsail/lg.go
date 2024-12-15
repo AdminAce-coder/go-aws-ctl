@@ -6,12 +6,12 @@ import (
 
 type LgOp struct {
 	LgOpsvc service.LgOpsvc
-	lgQuery service.LgQuerysvc
+	LgQuery service.LgQuerysvc
 }
 
 func NewLgOp() *LgOp {
 	return &LgOp{
 		LgOpsvc: NewLgInstanceOpCommand(), // 实例操作
-		lgQuery: NewLgQuery(),             // 查询
+		LgQuery: NewLgQuery(),             // 查询
 	}
 }

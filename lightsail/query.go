@@ -129,7 +129,7 @@ func (lg *LgQuery) GetInstancesInput(ctx context.Context) {
 				allInstances = append(allInstances, *instance.Name)
 			}
 
-			// 检查是否还有下���页
+			// 检查是否还有下一页
 			if instances.NextPageToken == nil {
 				break
 			}
