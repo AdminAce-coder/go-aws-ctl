@@ -66,7 +66,7 @@ func TestLgGetSnapshot(t *testing.T) {
 // 查看捆绑包
 func TestLgGetBundles(t *testing.T) {
 	lgctl := NewLgQuery()
-	bundles, err := lgctl.GetBundlesInput(context.Background(), cmd.GetDefaultAwsLgClient())
+	bundles, err := lgctl.GetBundlesInput(context.Background())
 	if err != nil {
 		t.Fatal(err)
 	}

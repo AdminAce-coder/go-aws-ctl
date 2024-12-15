@@ -40,7 +40,6 @@ var queryCmd = &cobra.Command{
 	Long:  `查询相关.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ctx := context.Background()
-		lc := lgClinet(ctx)
 		instanceType, err := cmd.Flags().GetBool("instanceType")
 		if err != nil {
 			fmt.Println("获取 instanceType 标志失败:", err)
@@ -53,7 +52,7 @@ var queryCmd = &cobra.Command{
 		}
 		lg := NewLgQuery()
 		if instanceType {
-			lg.GetBundlesInput(ctx, lc)
+			lg.GetBundlesInput(ctx)
 		}
 		if instanceList {
 			lg.GetInstancesInput(ctx)
