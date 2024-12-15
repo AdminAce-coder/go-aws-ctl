@@ -3,15 +3,14 @@ package service
 import (
 	"context"
 
-	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	lgtypes "github.com/aws/aws-sdk-go-v2/service/lightsail/types"
 	ctltypes "github.com/golifez/go-aws-ctl/model"
 )
 
 // Lightsail 查询接口
 type LgQuerysvc interface {
-	// 获取实例类型
-	GetBundlesInput(ctx context.Context, lgc *lightsail.Client) ([]ctltypes.LgBundle, error)
+	// 获取捆绑包列表
+	GetBundlesInput(ctx context.Context) (LgBundleList []ctltypes.LgBundle, err error)
 	// 获取实例数量
 	GetInstancesInput(ctx context.Context)
 	// 获取区域实例列表
