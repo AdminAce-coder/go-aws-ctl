@@ -119,3 +119,25 @@ func (l *LgInstanceOpCommand) AutoInstanceName(lgCreateInstance ctltypes.LgCreat
 	}
 	return lgCreateInstance.InstanceName
 }
+
+// 停止实例
+func (l *LgInstanceOpCommand) StopInstance(instanceName string, region string) error {
+	// 获取带区域的客户端
+	lgcwithRegion := cmd2.GetAwsLgClient(region)
+	// 停止实例
+	_, err := lgcwithRegion.StopInstance(ctx, &lightsail.StopInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+	return err
+}
+
+// 启动实例
+func (l *LgInstanceOpCommand) StartInstance(instanceName string, region string) error {
+	// 获取带区域的客户端
+	lgcwithRegion := cmd2.GetAwsLgClient(region)
+	// 启动实例
+	_, err := lgcwithRegion.StartInstance(ctx, &lightsail.StartInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+	return err
+}
