@@ -75,8 +75,10 @@ func (l *LgInstanceOpCommand) DeleteAllLg(ctx context.Context) error {
 
 // 删除实例
 func (l *LgInstanceOpCommand) DeleteInstance(instanceName string, region string) error {
+	// 获取带区域的客户端
+	lgcwithRegion := cmd2.GetAwsLgClient(region)
 	// 删除实例
-	_, err := l.lgc.DeleteInstance(ctx, &lightsail.DeleteInstanceInput{
+	_, err := lgcwithRegion.DeleteInstance(ctx, &lightsail.DeleteInstanceInput{
 		InstanceName: aws.String(instanceName),
 	})
 	return err

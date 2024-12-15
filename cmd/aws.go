@@ -115,6 +115,15 @@ func GetDefaultAwsLgClient() *lightsail.Client {
 	return lgClient
 }
 
+// 获取一个带区域的 Lightsail 客户端
+func GetAwsLgClient(region string) *lightsail.Client {
+	lgClient := GetClient[*lightsail.Client](
+		WithRegion(region),
+		WithClientType("lightsail"),
+	)
+	return lgClient
+}
+
 // 获取一个默认区域的 EC2 客户端
 func GetDefaultAwsEc2Client() *ec2.Client {
 	// 明确指定返回类型为 *ec2.Client
