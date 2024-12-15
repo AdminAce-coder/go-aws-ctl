@@ -220,21 +220,28 @@ func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctlt
 
 	// 为每个区域启动一个 goroutine
 	for _, region := range regionList {
+		// 启动一个协程传入区域
 		go func(r lgtypes.Region) {
+			// 获取实例列表
 			instances, err := lg.GetInstanceListWithRegion(ctx, string(r.Name))
+			// 将结果发送到通道
 			ch <- struct {
 				instances []ctltypes.LgAttr
 				err       error
 			}{instances, err}
+			// 结束协程
 		}(region)
 	}
 
 	// 收集所有结果
 	for i := 0; i < len(regionList); i++ {
+		// 从通道中接收结果
 		result := <-ch
+		// 如果结果有错误，返回错误
 		if result.err != nil {
 			return nil, result.err
 		}
+		// 将结果添加到实例列表
 		instanceNameList = append(instanceNameList, result.instances...)
 	}
 
@@ -256,20 +263,54 @@ func (lg *LgQuery) GetAccount(ctx context.Context) (string, error) {
 func (lg *LgQuery) GetSnapshotList(ctx context.Context) (snapshotList []ctltypes.LgSnapshot, err error) {
 	// 获取所有区域
 	rg := lg.GetRegionList(ctx)
+
+	// 创建带缓冲的通道
+	ch := make(chan struct {
+		snapshots []ctltypes.LgSnapshot
+		err       error
+	}, len(rg))
+
+	// 为每个区域启动一个 goroutine
 	for _, region := range rg {
-		lgcRe := cmd2.GetAwsLgClient(string(region.Name))
-		snapshotListOutput, err := lgcRe.GetInstanceSnapshots(ctx, &lightsail.GetInstanceSnapshotsInput{})
-		if err != nil {
+		go func(r lgtypes.Region) {
+			var regionSnapshots []ctltypes.LgSnapshot
+
+			lgcRe := cmd2.GetAwsLgClient(string(r.Name))
+			snapshotListOutput, err := lgcRe.GetInstanceSnapshots(ctx, &lightsail.GetInstanceSnapshotsInput{})
+			if err != nil {
+				ch <- struct {
+					snapshots []ctltypes.LgSnapshot
+					err       error
+				}{nil, err}
+				return
+			}
+			// 遍历快照
+			for _, snapshot := range snapshotListOutput.InstanceSnapshots {
+				regionSnapshots = append(regionSnapshots, ctltypes.LgSnapshot{
+					SnapshotName: *snapshot.Name,
+					CreatedAt:    datetime.FormatTimeToStr(*snapshot.CreatedAt, "yyyy-mm-dd"),
+					InstanceName: *snapshot.FromInstanceName,
+					Region:       string(snapshot.Location.RegionName),
+				})
+			}
+
+			ch <- struct {
+				snapshots []ctltypes.LgSnapshot
+				err       error
+			}{regionSnapshots, nil}
+		}(region)
+	}
+
+	// 收集所有结果
+	for i := 0; i < len(rg); i++ {
+		result := <-ch
+		if result.err != nil {
+			// 这里可以选择记录错误并继续，而不是直接返回错误
+			glog.New().Warning(ctx, "获取区域快照失败:", result.err)
 			continue
 		}
-		for _, snapshot := range snapshotListOutput.InstanceSnapshots {
-			snapshotList = append(snapshotList, ctltypes.LgSnapshot{
-				SnapshotName: *snapshot.Name,
-				CreatedAt:    datetime.FormatTimeToStr(*snapshot.CreatedAt, "yyyy-mm-dd"),
-				InstanceName: *snapshot.FromInstanceName,
-				Region:       string(snapshot.Location.RegionName),
-			})
-		}
+		snapshotList = append(snapshotList, result.snapshots...)
 	}
+
 	return snapshotList, nil
 }
