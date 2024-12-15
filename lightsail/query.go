@@ -70,8 +70,9 @@ func init() {
 }
 
 // 获取捆绑包
-func (lg *LgQuery) GetBundlesInput(ctx context.Context, lgc *lightsail.Client) (LgBundleList []ctltypes.LgBundle, err error) {
-	output, err := lgc.GetBundles(ctx, &lightsail.GetBundlesInput{})
+func (lg *LgQuery) GetBundlesInput(ctx context.Context) (LgBundleList []ctltypes.LgBundle, err error) {
+
+	output, err := lg.lgc.GetBundles(ctx, &lightsail.GetBundlesInput{})
 	if err != nil {
 		glog.New().Error(ctx, err)
 		return nil, err
