@@ -26,3 +26,21 @@ type LgBundle struct {
 	RamSizeInGb  float32 // 内存大小
 	DiskSizeInGb int32   // 磁盘大小
 }
+
+// 快照
+type LgSnapshot struct {
+	SnapshotName string // 快照名称
+	CreatedAt    string // 创建时间
+	InstanceName string // 实例名称
+	Region       string // 区域
+}
+
+// 创建实例
+type LgCreateInstance struct {
+	InstanceName     string // 实例名称
+	Region           string // 区域
+	SnapshotName     string // 快照名称
+	AvailabilityZone string // 可用区
+	BundleId         string // 捆绑包ID
+	Num              int    // 创建数量
+}

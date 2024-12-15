@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/duke-git/lancet/v2/datetime"
+
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
 
@@ -127,7 +129,7 @@ func (lg *LgQuery) GetInstancesInput(ctx context.Context) {
 				allInstances = append(allInstances, *instance.Name)
 			}
 
-			// 检查是否还有下一页
+			// 检查是否还有下���页
 			if instances.NextPageToken == nil {
 				break
 			}
@@ -228,4 +230,26 @@ func (lg *LgQuery) GetAccount(ctx context.Context) (string, error) {
 		return "", err
 	}
 	return *result.Account, nil
+}
+
+// 获取所有的快照
+func (lg *LgQuery) GetSnapshotList(ctx context.Context) (snapshotList []ctltypes.LgSnapshot, err error) {
+	// 获取所有区域
+	rg := lg.GetRegionList(ctx)
+	for _, region := range rg {
+		lgcRe := cmd2.GetAwsLgClient(string(region.Name))
+		snapshotListOutput, err := lgcRe.GetInstanceSnapshots(ctx, &lightsail.GetInstanceSnapshotsInput{})
+		if err != nil {
+			continue
+		}
+		for _, snapshot := range snapshotListOutput.InstanceSnapshots {
+			snapshotList = append(snapshotList, ctltypes.LgSnapshot{
+				SnapshotName: *snapshot.Name,
+				CreatedAt:    datetime.FormatTimeToStr(*snapshot.CreatedAt, "yyyy-mm-dd"),
+				InstanceName: *snapshot.FromInstanceName,
+				Region:       string(snapshot.Location.RegionName),
+			})
+		}
+	}
+	return snapshotList, nil
 }

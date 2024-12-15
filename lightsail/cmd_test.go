@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	"github.com/golifez/go-aws-ctl/cmd"
+	ctltypes "github.com/golifez/go-aws-ctl/model"
 )
 
 var ld = cmd.LoadOptions{}
@@ -50,4 +51,40 @@ func TestLgDeleteInstance(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("删除成功")
+}
+
+// 获取快照
+func TestLgGetSnapshot(t *testing.T) {
+	lgctl := NewLgQuery()
+	snapshotList, err := lgctl.GetSnapshotList(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("快照列表：%v", snapshotList)
+}
+
+// 查看捆绑包
+func TestLgGetBundles(t *testing.T) {
+	lgctl := NewLgQuery()
+	bundles, err := lgctl.GetBundlesInput(context.Background(), cmd.GetDefaultAwsLgClient())
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Printf("捆绑包列表：%v", bundles)
+}
+
+// 创建实例
+func TestLgCreateInstance(t *testing.T) {
+	lgctl := NewLgOp()
+	err := lgctl.LgOpsvc.CreateInstance(ctltypes.LgCreateInstance{
+		InstanceName:     "test-instance",
+		Region:           "ap-northeast-1",
+		SnapshotName:     "Ubuntu-1-1734237832",
+		AvailabilityZone: "ap-northeast-1a",
+		BundleId:         "nano_3_0",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("创建实例成功")
 }

@@ -20,6 +20,8 @@ type LgQuerysvc interface {
 	GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error)
 	// 获取区域列表
 	GetRegionList(ctx context.Context) (regionList []lgtypes.Region)
+	// 获取快照列表
+	GetSnapshotList(ctx context.Context) (snapshotList []ctltypes.LgSnapshot, err error)
 }
 
 // Lightsail 操作接口
@@ -28,4 +30,6 @@ type LgOpsvc interface {
 	DeleteAllLg(ctx context.Context) error
 	// 删除实例
 	DeleteInstance(instanceName string, region string) error
+	// 创建实例
+	CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) error
 }

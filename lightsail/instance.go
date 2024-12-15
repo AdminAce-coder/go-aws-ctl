@@ -6,6 +6,7 @@ import (
 
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
+	ctltypes "github.com/golifez/go-aws-ctl/model"
 	"github.com/golifez/go-aws-ctl/service"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -82,4 +83,23 @@ func (l *LgInstanceOpCommand) DeleteInstance(instanceName string, region string)
 		InstanceName: aws.String(instanceName),
 	})
 	return err
+}
+
+// 通过快照创建实例
+func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) error {
+	// 获取带区域的客户端
+	lgcwithRegion := cmd2.GetAwsLgClient(lgCreateInstance.Region)
+	// 创建实例
+	for i := 0; i < lgCreateInstance.Num; i++ {
+		_, err := lgcwithRegion.CreateInstancesFromSnapshot(ctx, &lightsail.CreateInstancesFromSnapshotInput{
+			InstanceNames:        []string{lgCreateInstance.InstanceName},
+			AvailabilityZone:     aws.String(lgCreateInstance.AvailabilityZone),
+			BundleId:             aws.String(lgCreateInstance.BundleId),
+			InstanceSnapshotName: aws.String(lgCreateInstance.SnapshotName),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
