@@ -211,13 +211,33 @@ func (lg *LgQuery) GetInstanceListWithRegion(ctx context.Context, region string)
 // 获取所有区域实例列表
 func (lg *LgQuery) GetInstanceList(ctx context.Context) (instanceNameList []ctltypes.LgAttr, err error) {
 	regionList := lg.GetRegionList(ctx)
+
+	// 创建一个通道来接收结果
+	ch := make(chan struct {
+		instances []ctltypes.LgAttr
+		err       error
+	}, len(regionList))
+
+	// 为每个区域启动一个 goroutine
 	for _, region := range regionList {
-		instanceList, err := lg.GetInstanceListWithRegion(ctx, string(region.Name))
-		if err != nil {
-			return nil, err
-		}
-		instanceNameList = append(instanceNameList, instanceList...)
+		go func(r lgtypes.Region) {
+			instances, err := lg.GetInstanceListWithRegion(ctx, string(r.Name))
+			ch <- struct {
+				instances []ctltypes.LgAttr
+				err       error
+			}{instances, err}
+		}(region)
 	}
+
+	// 收集所有结果
+	for i := 0; i < len(regionList); i++ {
+		result := <-ch
+		if result.err != nil {
+			return nil, result.err
+		}
+		instanceNameList = append(instanceNameList, result.instances...)
+	}
+
 	return instanceNameList, nil
 }
 
