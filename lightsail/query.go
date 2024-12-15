@@ -314,3 +314,21 @@ func (lg *LgQuery) GetSnapshotList(ctx context.Context) (snapshotList []ctltypes
 
 	return snapshotList, nil
 }
+
+// 通过区域获取快照
+func (lg *LgQuery) GetSnapshotListWithRegion(ctx context.Context, region string) (snapshotList []ctltypes.LgSnapshot, err error) {
+	lgcRe := cmd2.GetAwsLgClient(region)
+	snapshotListOutput, err := lgcRe.GetInstanceSnapshots(ctx, &lightsail.GetInstanceSnapshotsInput{})
+	if err != nil {
+		return nil, err
+	}
+	for _, snapshot := range snapshotListOutput.InstanceSnapshots {
+		snapshotList = append(snapshotList, ctltypes.LgSnapshot{
+			SnapshotName: *snapshot.Name,
+			CreatedAt:    datetime.FormatTimeToStr(*snapshot.CreatedAt, "yyyy-mm-dd"),
+			InstanceName: *snapshot.FromInstanceName,
+			Region:       region,
+		})
+	}
+	return snapshotList, nil
+}
