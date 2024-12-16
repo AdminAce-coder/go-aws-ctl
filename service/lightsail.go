@@ -44,5 +44,5 @@ type LgOpsvc interface {
 	// 切换实例公网IP
 	ChangeInstancePublicIp(instanceName string, region string) error
 	// 打开实例端口
-	OpenInstancePort(instanceName string, region string, portRange []int32) error
+	OpenInstancePort(instanceName string, region string, ports string) error
 }
