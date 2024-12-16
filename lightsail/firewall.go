@@ -3,6 +3,8 @@ package lightsail
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
@@ -111,19 +113,40 @@ func openPorts(client *lightsail.Client, instanceNames, ports []string) error {
 }
 
 // 解析端口范围
-func parsePortRange(port string) ([2]int32, error) {
-	var portRange [2]int32
-	_, err := fmt.Sscanf(port, "%d-%d", &portRange[0], &portRange[1])
-	if err == nil {
-		return portRange, nil
+
+// 传入 80-100 或者 80 返回 [80,100] 或者 [80,80]
+func parsePortRange(port string) ([]int32, error) {
+	var ports []int32
+	// 80-100
+	if strings.Contains(port, "-") {
+		parts := strings.Split(port, "-")
+		from, _ := strconv.Atoi(parts[0]) // 把字符串转换为 int
+		to, _ := strconv.Atoi(parts[1])
+		return []int32{int32(from), int32(to)}, nil
 	}
-	return [2]int32{}, fmt.Errorf("invalid port format: %s", port)
+	// 80,443
+	if strings.Contains(port, ",") {
+		parts := strings.Split(port, ",")
+		for _, p := range parts {
+			val, _ := strconv.Atoi(p)
+			ports = append(ports, int32(val))
+		}
+		return ports, nil
+	}
+	// 80
+	val, _ := strconv.Atoi(port)
+	return []int32{int32(val)}, nil
 }
 
 // 打开防火墙端口
-func OpenFirewallPort(client *lightsail.Client, instanceName string, portRange []int32) error {
+func openFirewallPort(client *lightsail.Client, instanceName string, ports string) error {
+	// 解析端口
+	portRange, err := parsePortRange(ports)
+	if err != nil {
+		return fmt.Errorf("invalid port %s for instance %s: %w", ports, instanceName, err)
+	}
 	// 打开端口
-	_, err := client.OpenInstancePublicPorts(ctx, &lightsail.OpenInstancePublicPortsInput{
+	_, err = client.OpenInstancePublicPorts(ctx, &lightsail.OpenInstancePublicPortsInput{
 		InstanceName: aws.String(instanceName),
 		PortInfo: &types.PortInfo{
 			FromPort: portRange[0], // 使用数组的第一个值

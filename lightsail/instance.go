@@ -200,10 +200,10 @@ func (l *LgInstanceOpCommand) ModifyInstanceTag(instanceName string, region stri
 }
 
 // 打开实例端口
-func (l *LgInstanceOpCommand) OpenInstancePort(instanceName string, region string, portRange []int32) error {
+func (l *LgInstanceOpCommand) OpenInstancePort(instanceName string, region string, ports string) error {
 	lgcwithRegion := cmd2.GetAwsLgClient(region)
 	// 打开实例端口
-	err := OpenFirewallPort(lgcwithRegion, instanceName, portRange)
+	err := openFirewallPort(lgcwithRegion, instanceName, ports)
 	if err != nil {
 		return err
 	}
