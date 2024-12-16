@@ -23,6 +23,8 @@ type LgQuerysvc interface {
 	GetSnapshotList(ctx context.Context) (snapshotList []ctltypes.LgSnapshot, err error)
 	// 通过区域获取快照
 	GetSnapshotListWithRegion(ctx context.Context, region string) (snapshotList []ctltypes.LgSnapshot, err error)
+	// 查询实例防火墙端口
+	QueryInstanceFirewallPort(ctx context.Context, instanceName string, region string) error
 }
 
 // Lightsail 操作接口
@@ -41,4 +43,6 @@ type LgOpsvc interface {
 	ModifyInstanceTag(instanceName string, region string, tagKey string) error
 	// 切换实例公网IP
 	ChangeInstancePublicIp(instanceName string, region string) error
+	// 打开实例端口
+	OpenInstancePort(instanceName string, region string, portRange []int32) error
 }

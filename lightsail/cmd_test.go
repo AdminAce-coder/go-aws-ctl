@@ -108,3 +108,23 @@ func TestLgChangeInstancePublicIp(t *testing.T) {
 	}
 	fmt.Println("切换实例公网IP成功")
 }
+
+// 打开实例端口
+func TestLgOpenInstancePort(t *testing.T) {
+	lgctl := NewLgOp()
+	err := lgctl.LgOpsvc.OpenInstancePort("Ubuntu-1", "ap-northeast-1", []int32{32, 32})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("打开实例端口成功")
+}
+
+// 查询实例防火墙端口
+func TestLgQueryInstanceFirewallPort(t *testing.T) {
+	lgctl := NewLgQuery()
+	err := lgctl.QueryInstanceFirewallPort(context.Background(), "Ubuntu-1", "ap-northeast-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("查询实例防火墙端口成功")
+}

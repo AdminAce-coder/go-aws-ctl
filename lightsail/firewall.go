@@ -3,6 +3,7 @@ package lightsail
 import (
 	"context"
 	"fmt"
+
 	"github.com/golifez/go-aws-ctl/cmd"
 	cmd2 "github.com/golifez/go-aws-ctl/cmd"
 
@@ -109,19 +110,36 @@ func openPorts(client *lightsail.Client, instanceNames, ports []string) error {
 	return nil
 }
 
-// parsePortRange parses a port range string (e.g., "80" or "80-443") and returns a [from, to] range.
+// 解析端口范围
 func parsePortRange(port string) ([2]int32, error) {
 	var portRange [2]int32
 	_, err := fmt.Sscanf(port, "%d-%d", &portRange[0], &portRange[1])
 	if err == nil {
 		return portRange, nil
 	}
-
-	var singlePort int32
-	_, err = fmt.Sscanf(port, "%d", &singlePort)
-	if err == nil {
-		return [2]int32{singlePort, singlePort}, nil
-	}
-
 	return [2]int32{}, fmt.Errorf("invalid port format: %s", port)
+}
+
+// 打开防火墙端口
+func OpenFirewallPort(client *lightsail.Client, instanceName string, portRange []int32) error {
+	// 打开端口
+	_, err := client.OpenInstancePublicPorts(ctx, &lightsail.OpenInstancePublicPortsInput{
+		InstanceName: aws.String(instanceName),
+		PortInfo: &types.PortInfo{
+			FromPort: portRange[0], // 使用数组的第一个值
+			ToPort:   portRange[1], // 使用数组的第二个值
+			Protocol: types.NetworkProtocolTcp,
+		},
+	})
+	return err
+}
+
+// 查询实例防火墙端口
+func QueryInstanceFirewallPort(client *lightsail.Client, instanceName string) error {
+	// 查询端口
+	out, err := client.GetInstancePortStates(ctx, &lightsail.GetInstancePortStatesInput{
+		InstanceName: aws.String(instanceName),
+	})
+	fmt.Println(out.PortStates)
+	return err
 }

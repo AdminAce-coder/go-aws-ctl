@@ -332,3 +332,9 @@ func (lg *LgQuery) GetSnapshotListWithRegion(ctx context.Context, region string)
 	}
 	return snapshotList, nil
 }
+
+// 查询实例防火墙端口
+func (lg *LgQuery) QueryInstanceFirewallPort(ctx context.Context, instanceName string, region string) error {
+	lgcRe := cmd2.GetAwsLgClient(region)
+	return QueryInstanceFirewallPort(lgcRe, instanceName)
+}
