@@ -338,3 +338,15 @@ func (lg *LgQuery) QueryInstanceFirewallPort(ctx context.Context, instanceName s
 	lgcRe := cmd2.GetAwsLgClient(region)
 	return QueryInstanceFirewallPort(lgcRe, instanceName)
 }
+
+// 查询实例状态
+func (lg *LgQuery) QueryInstanceStatus(ctx context.Context, instanceName string, region string) (string, error) {
+	lgcRe := cmd2.GetAwsLgClient(region)
+	instance, err := lgcRe.GetInstance(ctx, &lightsail.GetInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+	if err != nil {
+		return "", err
+	}
+	return aws.ToString(instance.Instance.State.Name), nil
+}

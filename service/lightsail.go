@@ -25,6 +25,8 @@ type LgQuerysvc interface {
 	GetSnapshotListWithRegion(ctx context.Context, region string) (snapshotList []ctltypes.LgSnapshot, err error)
 	// 查询实例防火墙端口
 	QueryInstanceFirewallPort(ctx context.Context, instanceName string, region string) error
+	// 查询实例状态
+	QueryInstanceStatus(ctx context.Context, instanceName string, region string) (string, error)
 }
 
 // Lightsail 操作接口

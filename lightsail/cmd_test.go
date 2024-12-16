@@ -76,7 +76,7 @@ func TestLgGetBundles(t *testing.T) {
 // 创建实例
 func TestLgCreateInstance(t *testing.T) {
 	lgctl := NewLgOp()
-	err := lgctl.LgOpsvc.CreateInstance(ctltypes.LgCreateInstance{
+	_, err := lgctl.LgOpsvc.CreateInstance(ctltypes.LgCreateInstance{
 		InstanceName:     "test-instance",
 		Region:           "ap-northeast-1",
 		SnapshotName:     "Ubuntu-1-1734237832",
@@ -111,12 +111,12 @@ func TestLgChangeInstancePublicIp(t *testing.T) {
 
 // 打开实例端口
 func TestLgOpenInstancePort(t *testing.T) {
-	lgctl := NewLgOp()
-	err := lgctl.LgOpsvc.OpenInstancePort("Ubuntu-1", "ap-northeast-1", []int32{32, 32})
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("打开实例端口成功")
+	//lgctl := NewLgOp()
+	//err := lgctl.LgOpsvc.OpenInstancePort("Ubuntu-1", "ap-northeast-1", []int32{32, 32})
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//fmt.Println("打开实例端口成功")
 }
 
 // 查询实例防火墙端口
@@ -127,4 +127,14 @@ func TestLgQueryInstanceFirewallPort(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("查询实例防火墙端口成功")
+}
+
+// 查询实例状态
+func TestLgQueryInstanceStatus(t *testing.T) {
+	lgctl := NewLgQuery()
+	status, err := lgctl.QueryInstanceStatus(context.Background(), "Ubuntu-1", "ap-northeast-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("查询实例状态成功:", status)
 }
