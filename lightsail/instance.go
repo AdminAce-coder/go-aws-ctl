@@ -90,10 +90,11 @@ func (l *LgInstanceOpCommand) DeleteInstance(instanceName string, region string)
 }
 
 // 通过快照创建实例
-func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) error {
+func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) ([]string, error) {
 	// 获取带区域的客户端
 	lgcwithRegion := cmd2.GetAwsLgClient(lgCreateInstance.Region)
 	// 创建实例
+	instanceNames := []string{}
 	for i := 0; i < lgCreateInstance.Num; i++ {
 		instanceName := l.AutoInstanceName(lgCreateInstance)
 		_, err := lgcwithRegion.CreateInstancesFromSnapshot(ctx, &lightsail.CreateInstancesFromSnapshotInput{
@@ -103,10 +104,13 @@ func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateI
 			InstanceSnapshotName: aws.String(lgCreateInstance.SnapshotName),
 		})
 		if err != nil {
-			return err
+			return nil, err
 		}
+
+		instanceNames = append(instanceNames, instanceName)
+		fmt.Printf("创建实例成功,返回实例列表: %v\n", instanceNames)
 	}
-	return nil
+	return instanceNames, nil
 }
 
 // 自动生成实例名称

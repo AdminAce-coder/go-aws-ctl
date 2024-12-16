@@ -34,7 +34,7 @@ type LgOpsvc interface {
 	// 删除实例
 	DeleteInstance(instanceName string, region string) error
 	// 创建实例
-	CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) error
+	CreateInstance(lgCreateInstance ctltypes.LgCreateInstance) ([]string, error)
 	// 停止实例
 	StopInstance(instanceName string, region string) error
 	// 启动实例
