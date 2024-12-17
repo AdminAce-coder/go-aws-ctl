@@ -138,3 +138,13 @@ func TestLgQueryInstanceStatus(t *testing.T) {
 	}
 	fmt.Println("查询实例状态成功:", status)
 }
+
+// 通过名称查询IP地址
+func TestLgQueryInstanceIp(t *testing.T) {
+	lgctl := NewLgQuery()
+	ip, err := lgctl.QueryInstanceIp(context.Background(), "2024-12-16-v1JNiX", "ap-northeast-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println("查询实例IP地址成功:", ip)
+}

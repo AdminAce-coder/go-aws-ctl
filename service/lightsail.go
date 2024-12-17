@@ -27,6 +27,8 @@ type LgQuerysvc interface {
 	QueryInstanceFirewallPort(ctx context.Context, instanceName string, region string) error
 	// 查询实例状态
 	QueryInstanceStatus(ctx context.Context, instanceName string, region string) (string, error)
+	// 通过名称查询IP地址
+	QueryInstanceIp(ctx context.Context, instanceName string, region string) (string, error)
 }
 
 // Lightsail 操作接口

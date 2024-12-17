@@ -350,3 +350,15 @@ func (lg *LgQuery) QueryInstanceStatus(ctx context.Context, instanceName string,
 	}
 	return aws.ToString(instance.Instance.State.Name), nil
 }
+
+// 通过名称查询IP地址
+func (lg *LgQuery) QueryInstanceIp(ctx context.Context, instanceName string, region string) (string, error) {
+	lgcRe := cmd2.GetAwsLgClient(region)
+	instance, err := lgcRe.GetInstance(ctx, &lightsail.GetInstanceInput{
+		InstanceName: aws.String(instanceName),
+	})
+	if err != nil {
+		return "", err
+	}
+	return aws.ToString(instance.Instance.PublicIpAddress), nil
+}
