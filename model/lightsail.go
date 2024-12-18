@@ -37,11 +37,17 @@ type LgSnapshot struct {
 
 // 创建实例
 type LgCreateInstance struct {
-	InstanceName     string // 实例名称
-	Region           string // 区域
-	SnapshotName     string // 快照名称
-	AvailabilityZone string // 可用区
-	BundleId         string // 捆绑包ID
-	Num              int    // 创建数量
-	IsAutoName       bool   // 是否自动生成实例名称
+	InstanceName     string  // 实例名称
+	Region           string  // 区域
+	SnapshotName     string  // 快照名称
+	AvailabilityZone string  // 可用区
+	BundleId         string  // 捆绑包ID
+	Num              int     // 创建数量
+	IsAutoName       bool    // 是否自动生成实例名称
+	Tags             []LgTag // Key-Value 标签
+}
+
+type LgTag struct {
+	Key   string
+	Value string
 }

@@ -102,6 +102,7 @@ func (l *LgInstanceOpCommand) CreateInstance(lgCreateInstance ctltypes.LgCreateI
 			AvailabilityZone:     aws.String(lgCreateInstance.AvailabilityZone),
 			BundleId:             aws.String(lgCreateInstance.BundleId),
 			InstanceSnapshotName: aws.String(lgCreateInstance.SnapshotName),
+			Tags:                 ParseTags(lgCreateInstance.Tags),
 		})
 		if err != nil {
 			return nil, err
@@ -212,4 +213,21 @@ func (l *LgInstanceOpCommand) OpenInstancePort(instanceName string, region strin
 		return err
 	}
 	return nil
+}
+
+// 解析标签
+func ParseTags(tags []ctltypes.LgTag) []types.Tag {
+	var result []types.Tag
+	// 如果标签为空，则返回空标签
+	if len(tags) == 0 {
+		return result
+	}
+	for _, tag := range tags {
+		// 统一处理，无论 Value 是否为空
+		result = append(result, types.Tag{
+			Key:   aws.String(tag.Key),
+			Value: aws.String(tag.Value),
+		})
+	}
+	return result
 }

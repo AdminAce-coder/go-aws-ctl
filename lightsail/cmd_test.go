@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/lightsail"
 	"github.com/golifez/go-aws-ctl/cmd"
 	ctltypes "github.com/golifez/go-aws-ctl/model"
@@ -82,6 +83,9 @@ func TestLgCreateInstance(t *testing.T) {
 		SnapshotName:     "Ubuntu-1-1734237832",
 		AvailabilityZone: "ap-northeast-1a",
 		BundleId:         "nano_3_0",
+		Num:              1,
+		IsAutoName:       true,
+		Tags:             []ctltypes.LgTag{{Key: "test1", Value: "test"}, {Key: "test2", Value: ""}},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -132,7 +136,7 @@ func TestLgQueryInstanceFirewallPort(t *testing.T) {
 // 查询实例状态
 func TestLgQueryInstanceStatus(t *testing.T) {
 	lgctl := NewLgQuery()
-	status, err := lgctl.QueryInstanceStatus(context.Background(), "Ubuntu-1", "ap-northeast-1")
+	status, err := lgctl.QueryInstanceStatus(context.Background(), "2024-12-16-v1JNiX", "ap-northeast-1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,4 +151,12 @@ func TestLgQueryInstanceIp(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("查询实例IP地址成功:", ip)
+}
+
+// 解析标签
+func TestLgParseTags(t *testing.T) {
+	// lgctl := NewLgQuery()
+	tags := ParseTags([]ctltypes.LgTag{{Key: "test", Value: "test"}, {Key: "test2", Value: ""}})
+	fmt.Println("解析标签成功:", aws.ToString(tags[0].Key), aws.ToString(tags[0].Value))
+	fmt.Println("解析标签成功:", aws.ToString(tags[1].Key), aws.ToString(tags[1].Value))
 }
