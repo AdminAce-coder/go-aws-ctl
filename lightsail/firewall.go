@@ -146,12 +146,18 @@ func openFirewallPort(client *lightsail.Client, instanceName string, ports strin
 		return fmt.Errorf("invalid port %s for instance %s: %w", ports, instanceName, err)
 	}
 	// 打开端口
+	protocol := types.NetworkProtocolTcp
+	// 如果是全部端口范围，则使用所有协议
+	if portRange[0] == 0 && portRange[1] == 65535 {
+		protocol = types.NetworkProtocolAll
+	}
+
 	_, err = client.OpenInstancePublicPorts(ctx, &lightsail.OpenInstancePublicPortsInput{
 		InstanceName: aws.String(instanceName),
 		PortInfo: &types.PortInfo{
-			FromPort: portRange[0], // 使用数组的第一个值
-			ToPort:   portRange[1], // 使用数组的第二个值
-			Protocol: types.NetworkProtocolTcp,
+			FromPort: portRange[0],
+			ToPort:   portRange[1],
+			Protocol: protocol,
 		},
 	})
 	return err
