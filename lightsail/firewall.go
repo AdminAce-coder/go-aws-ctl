@@ -76,7 +76,7 @@ func openPorts(client *lightsail.Client, instanceNames, ports []string) error {
 	for _, instance := range instances {
 		for _, port := range ports {
 			if port == "all" {
-				// 打开所有端口 (0-65535)
+				// 打开所有端口 (0-65535) 和所有协议
 				_, err := client.OpenInstancePublicPorts(ctx, &lightsail.OpenInstancePublicPortsInput{
 					InstanceName: aws.String(instance),
 					PortInfo: &types.PortInfo{
